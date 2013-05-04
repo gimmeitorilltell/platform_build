@@ -713,8 +713,8 @@ function tapas()
 function eat()
 {
     if [ "$OUT" ] ; then
-        MODVERSION=`sed -n -e'/ro\.pac\.version/s/.*=//p' $OUT/system/build.prop`
-        ZIPFILE=cm-$MODVERSION.zip
+        MODVERSION=$(get_build_var PAC_VERSION)
+        ZIPFILE=pac-$MODVERSION.zip
         ZIPPATH=$OUT/$ZIPFILE
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
