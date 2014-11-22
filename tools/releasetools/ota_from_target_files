@@ -581,34 +581,14 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   system_progress = 0.75
   
-   script.ShowProgress(0.75, 0)
-   script.Print("");
-   script.Print("");
-   script.Print("");
-   script.Print("");
-   script.Print("");
-   script.Print("");
-   script.Print("********************************************");
-   script.Print("*==========================================*");
-   script.Print("                  Candy5                    ");
-   script.Print("              the-candy-shop.co             ");
-   script.Print("*==========================================*");
+   
+   
 
   if OPTIONS.wipe_user_data:
     system_progress -= 0.1
   if HasVendorPartition(input_zip):
     system_progress -= 0.1
     
-   script.Print("********************************************");
-   script.Print("*==========================================*");
-   script.Print("*  ___               _        _____        *");
-   script.Print("* / __)__ _ _ __  __||_    _ |____|        *");
-   script.Print("*/ /  /  ' | '_ \/ _ |\   // ||            *");
-   script.Print("*\ \__\ (| | | | \ \||\\_//  |--\          *");
-   script.Print("* \___)\_,_|_| |_|\__| \\/    __\\         *");
-   script.Print("*                      //    |___ |        *");
-   script.Print("*==========================================*");
-   script.Print("********************************************");
 
   if block_based:
     common.ZipWriteStr(output_zip, "system/bin/otasigcheck.sh",
