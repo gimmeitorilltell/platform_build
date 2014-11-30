@@ -226,7 +226,7 @@ ifneq ($(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_OEM_PROPERTIES),)
 endif
 	$(hide) TARGET_BUILD_TYPE="$(TARGET_BUILD_VARIANT)" \
 			TARGET_DEVICE="$(TARGET_VENDOR_DEVICE_NAME)" \
-			candy5_DEVICE="$(TARGET_DEVICE)" \
+			BS_DEVICE="$(TARGET_DEVICE)" \
 			PRODUCT_NAME="$(TARGET_VENDOR_PRODUCT_NAME)" \
 			PRODUCT_BRAND="$(PRODUCT_BRAND)" \
 			PRODUCT_DEFAULT_LANGUAGE="$(call default-locale-language,$(PRODUCT_LOCALES))" \
@@ -1636,7 +1636,7 @@ endif
 ifeq ($(WITH_GMS),true)
     $(INTERNAL_OTA_PACKAGE_TARGET): backuptool := false
 else
-ifneq ($(candy5_BUILD),)
+ifneq ($(BS_BUILD),)
     $(INTERNAL_OTA_PACKAGE_TARGET): backuptool := true
 else
     $(INTERNAL_OTA_PACKAGE_TARGET): backuptool := false
@@ -1671,30 +1671,15 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 	   $(if $(OEM_OTA_CONFIG), -o $(OEM_OTA_CONFIG)) \
 	   $(BUILT_TARGET_FILES_PACKAGE) $@
 
-CM_TARGET_PACKAGE := $(PRODUCT_OUT)/$(CM_VERSION).zip
+BS_TARGET_PACKAGE := $(PRODUCT_OUT)/$(BS_VERSION).zip
 
 .PHONY: otapackage bacon
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
-	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(candy5_TARGET_PACKAGE)
-	$(hide) $(MD5SUM) $(candy5_TARGET_PACKAGE) > $(candy5_TARGET_PACKAGE).md5sum
-	@echo -e ${CL_CYN}""${CL_CYN}
-	@echo -e ${CL_CYN}".............................................................................."${CL_CYN}
-	@echo -e ${CL_CYN}".....###########..............................................############...."${CL_CYN}
-	@echo -e ${CL_CYN}"....#############............................................##############..."${CL_CYN}
-	@echo -e ${CL_CYN}"..###.......................................................###..............."${CL_CYN}
-	@echo -e ${CL_CYN}".###........................................................###..............."${CL_CYN}
-	@echo -e ${CL_CYN}".###................###.....###....##..#######...##.....##..###..............."${CL_CYN}
-	@echo -e ${CL_CYN}".###...............##.##....###....##..##....##...##...##...##############...."${CL_CYN}
-	@echo -e ${CL_CYN}".###..............##...##...##.##..##..##....##....##.##....###############..."${CL_CYN}
-	@echo -e ${CL_CYN}".###.............#########..##...####..##....##.....##....................###."${CL_CYN}
-	@echo -e ${CL_CYN}".###.............##.....##..##....###..##....##.....##....................###."${CL_CYN}
-	@echo -e ${CL_CYN}".###.............##.....##..##.....##..#######......##....................###."${CL_CYN}
-	@echo -e ${CL_CYN}".###......................................................................###."${CL_CYN}
-	@echo -e ${CL_CYN}"..###...........###.......................................###.............###."${CL_CYN}
-	@echo -e ${CL_CYN}"....##############.........................................#################.."${CL_CYN}
-	@echo -e ${CL_CYN}"......##########.............................................#############...."${CL_CYN}
-	@echo -e ${CL_CYN}"Complete: $(candy5_TARGET_PACKAGE)"${CL_RST}
+	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(BS_TARGET_PACKAGE)
+	$(hide) $(MD5SUM) $(BS_TARGET_PACKAGE) > $(BS_TARGET_PACKAGE).md5sum
+	@echo -e ${CL_CYN}"Package Complete: $(BS_TARGET_PACKAGE)"${CL_RST}
+
 endif    # recovery_fstab is defined
 endif    # TARGET_NO_KERNEL != true
 endif    # TARGET_DEVICE != generic*

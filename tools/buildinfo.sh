@@ -55,9 +55,6 @@ if [ "$TARGET_UNIFIED_DEVICE" == "" ] ; then
   fi
 fi
 
-#CandyCenter
-echo "ro.candyroms.device=$TARGET_DEVICE"
-echo "ro.candyroms.model=$PRODUCT_MODEL"
-echo "ro.build.characteristics=$TARGET_AAPT_CHARACTERISTICS"
+echo "ro.bs.device=$BS_DEVICE"
 
 echo "# end build properties"
