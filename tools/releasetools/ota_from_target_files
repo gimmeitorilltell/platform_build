@@ -586,7 +586,26 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     system_progress -= 0.1
   if HasVendorPartition(input_zip):
     system_progress -= 0.1
-    
+
+  script.Print("*******************************************");
+  script.Print("*******************************************");
+  script.Print("  ___              _      ___              ");
+  script.Print(" / __|__ _ _ _  __| |_  _| _ \___ _ __  ___");
+  script.Print("| (__/ _` | ' \/ _` | || |   / _ \ '  \(_-<");
+  script.Print(" \___\__,_|_||_\__,_|\_, |_|_\___/_|_|_/__/");
+  script.Print("                     |__/                  ");
+  script.Print("*******************************************");
+  script.Print("*******************************************");
+
+  build = GetBuildProp("ro.build.date", OPTIONS.info_dict)
+  script.Print("*******************************************");
+  script.Print("*   Compiled: %s"%(build));
+
+  device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
+  model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
+  script.Print("*   Device: %s (%s)"%(model, device));
+  script.Print("*******************************************");
+  script.Print("*******************************************");
 
   if block_based:
     common.ZipWriteStr(output_zip, "system/bin/otasigcheck.sh",
