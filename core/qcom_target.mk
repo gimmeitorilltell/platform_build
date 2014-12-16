@@ -19,7 +19,6 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
             qcom_flags += -DQCOM_DIRECTTRACK
         endif
         # Enable legacy graphics functions
-
         qcom_flags += -DQCOM_BSP_LEGACY
      endif
  
