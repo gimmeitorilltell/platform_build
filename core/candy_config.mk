@@ -47,7 +47,7 @@ ADDITIONAL_TARGET_ARM_OPT   ?=
 ADDITIONAL_TARGET_THUMB_OPT ?=
 CANDY_ARM_OPT_LEVEL         ?= -O2
 CANDY_THUMB_OPT_LEVEL       ?= -Os
-FSTRICT_ALIASING_WARNING_LEVEL ?= 2
+FSTRICT_ALIASING_WARNING_LEVEL ?= 3
 
 # Set some defaults in case they are missing
 ifeq ($(FSTRICT_ALIASING_WARNING_LEVEL),)
@@ -138,19 +138,8 @@ ifeq ($(USE_FSTRICT_FLAGS),true)
 	libfdlibm \
 	libvariablespeed \
 	librtp_jni \
-	libdownmix \
 	libldnhncr \
-	libqcomvisualizer \
 	libwilhelm \
-	libvisualizer \
-	libstagefright \
-	libstagefright_webm \
-	libmedia \
-	libreverb \
-	libaudioflinger \
-	libmediaplayerservice \
-	libstagefright_soft_h264dec \
-	libmusicbundle \
 	libstlport \
 	libstlport_static \
 	libutils \
@@ -165,8 +154,6 @@ ifeq ($(USE_FSTRICT_FLAGS),true)
 	third_party_WebKit_Source_core_webcore_remaining_gyp \
 	third_party_angle_src_translator_lib_gyp \
 	third_party_WebKit_Source_core_webcore_generated_gyp \
-	libc_gdtoa \
-	libc_nomalloc \
 	libft2 \
 	libjni_jpegstream \
 	libjni_filtershow_filters \
@@ -182,7 +169,11 @@ ifeq ($(USE_FSTRICT_FLAGS),true)
 	libOmxVenc \
     mm-vdec-omx-test \
     libpdfiumcore \
-    libpdfium
+    libpdfium \
+    libstagefright_soft_h264dec \
+    libmusicbundle \
+    libreverb \
+    libqcomvisualizer
 
 # external/ffmpeg
   CANDY_FNO_STRICT_ALIASING_MODULES += \
