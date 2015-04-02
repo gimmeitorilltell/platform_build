@@ -157,8 +157,6 @@ class EdifyGenerator(object):
   def ValidateSignatures(self, command):
 	# Exit code 124 == abort. run_program returns raw, so left-shift 8bit
     self.script.append('run_program("/tmp/install/bin/otasigcheck.sh") != "31744" || abort("Can\'t install this package on top of incompatible data. Please try another package or run a factory reset");')
-        ## The script changes the key value when it fails, check for "INVALID"
-        self.script.append('sha1_check(read_file("/tmp/releasekey"),"7241e92725436afc79389d4fc2333a2aa8c20230") && abort("Can\'t install this package on top of incompatible data. Please try another package or run a factory reset");')
 
   def ShowProgress(self, frac, dur):
     """Update the progress bar, advancing it over 'frac' over the next
