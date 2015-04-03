@@ -587,42 +587,11 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.Unmount("/system")
 
   system_progress = 0.75
-  
-   
-   
 
   if OPTIONS.wipe_user_data:
     system_progress -= 0.1
   if HasVendorPartition(input_zip):
     system_progress -= 0.1
-
-
-  script.Print("*******************************************");
-  script.Print("*******************************************");
-  script.Print("  ___              _      ___              ");
-  script.Print(" / __|__ _ _ _  __| |_  _| _ \___ _ __  ___");
-  script.Print("| (__/ _` | ' \/ _` | || |   / _ \ '  \(_-<");
-  script.Print(" \___\__,_|_||_\__,_|\_, |_|_\___/_|_|_/__/");
-  script.Print("                     |__/                  ");
-  script.Print("*******************************************");
-
-  build = GetBuildProp("ro.build.date", OPTIONS.info_dict)
-  script.Print("*******************************************");
-  script.Print("*   Compiled: %s"%(build));
-
-  device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
-  model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
-  script.Print("*   Device: %s (%s)"%(model, device));
-  script.Print("*******************************************");
-  script.Print("*******************************************");
-
-  script.AppendExtra("if is_mounted(\"/data\") then")
-  script.ValidateSignatures("data")
-  script.AppendExtra("else")
-  script.Mount("/data")
-  script.ValidateSignatures("data")
-  script.Unmount("/data")
-  script.AppendExtra("endif;")
 
   script.Print("**********************************************");
   script.Print("* ____                       _        _ _    *");
@@ -643,6 +612,14 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
   script.Print("*   Device: %s (%s)"%(model, device));
   script.Print("******************************************");
+
+  script.AppendExtra("if is_mounted(\"/data\") then")
+  script.ValidateSignatures("data")
+  script.AppendExtra("else")
+  script.Mount("/data")
+  script.ValidateSignatures("data")
+  script.Unmount("/data")
+  script.AppendExtra("endif;")
 
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
@@ -715,15 +692,6 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.RunBackup("restore")
     if block_based:
       script.Unmount("/system")
-
-  if block_based:
-    script.Print("Flashing SuperSU...")
-    common.ZipWriteStr(output_zip, "supersu/supersu.zip",
-                   ""+input_zip.read("SYSTEM/addon.d/UPDATE-SuperSU.zip"))
-    script.Mount("/system")
-    script.FlashSuperSU()
-  if block_based:
-    script.Unmount("/system")
 
   script.ShowProgress(0.05, 5)
   script.WriteRawImage("/boot", "boot.img")
