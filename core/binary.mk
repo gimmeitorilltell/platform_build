@@ -97,6 +97,33 @@ else
   endif
 endif
 
+# USE_BINARY_FLAGS is set in $(BUILD_SYSTEM)/CANDY_config.mk.
+# To be used used as a way to test global build flags persistently.
+ifndef LOCAL_IS_HOST_MODULE
+  ifdef ($(USE_BINARY_FLAGS),true)
+    LOCAL_CFLAGS += $(call cc-option,$(CANDY_BINARY_CFLAG_OPTIONS))
+    LOCAL_CPPFLAGS += $(call cc-option,$(CANDY_BINARY_CPP_OPTIONS))
+    LOCAL_LDFLAGS += $(call cc-option,$(CANDY_LINKER_OPTIONS))
+    LOCAL_ASFLAGS += $(call cc-option,$(CANDY_ASSEMBLER_OPTIONS))
+  endif
+
+  # Workaround issues with fstrict-aliasing until properly fixed.
+  ifeq ($(USE_FSTRICT_FLAGS),true)
+    ifeq ($(LOCAL_MODULE),$(filter $(LOCAL_MODULE),$(CANDY_FNO_STRICT_ALIASING_MODULES)))
+      LOCAL_CONLYFLAGS += -fno-strict-aliasing
+      LOCAL_CPPFLAGS += -fno-strict-aliasing
+      LOCAL_CFLAGS += -fno-strict-aliasing
+    endif
+  endif
+
+  ifeq ($(USE_LTO),true)
+    ifeq ($(LOCAL_MODULE),$(filter $(LOCAL_MODULE),$(CANDY_LTO_MODULES)))
+      LOCAL_CFLAGS += $(call cc-option,$(CANDY_LTO_FLAGS))
+      LOCAL_LDFLAGS += $(call cc-option,$(CANDY_LTO_FLAGS))
+    endif
+  endif
+endif
+
 # The following LOCAL_ variables will be modified in this file.
 # Because the same LOCAL_ variables may be used to define modules for both 1st arch and 2nd arch,
 # we can't modify them in place.

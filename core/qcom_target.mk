@@ -23,12 +23,12 @@ ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
         endif
         # Enable legacy graphics functions
         qcom_flags += -DQCOM_BSP_LEGACY
-    endif
-
-    TARGET_GLOBAL_CFLAGS += $(qcom_flags)
-    TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)
-    CLANG_TARGET_GLOBAL_CFLAGS += $(qcom_flags)
-    CLANG_TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)
+     endif
+ 
+     TARGET_GLOBAL_CFLAGS += $(qcom_flags)
+     TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)
+     CLANG_TARGET_GLOBAL_CFLAGS += $(qcom_flags)
+     CLANG_TARGET_GLOBAL_CPPFLAGS += $(qcom_flags)   
 
     # Multiarch needs these too..
     2ND_TARGET_GLOBAL_CFLAGS += $(qcom_flags)

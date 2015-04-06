@@ -593,14 +593,6 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   if HasVendorPartition(input_zip):
     system_progress -= 0.1
 
-  script.AppendExtra("if is_mounted(\"/data\") then")
-  script.ValidateSignatures("data")
-  script.AppendExtra("else")
-  script.Mount("/data")
-  script.ValidateSignatures("data")
-  script.Unmount("/data")
-  script.AppendExtra("endif;")
-
   script.Print("**********************************************");
   script.Print("* ____                       _        _ _    *");
   script.Print("*| __ )  ___  __ _ _ __  ___| |_ __ _| | | __*");
@@ -621,6 +613,14 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.Print("*   Device: %s (%s)"%(model, device));
   script.Print("******************************************");
 
+  script.AppendExtra("if is_mounted(\"/data\") then")
+  script.ValidateSignatures("data")
+  script.AppendExtra("else")
+  script.Mount("/data")
+  script.ValidateSignatures("data")
+  script.Unmount("/data")
+  script.AppendExtra("endif;")
+
   if "selinux_fc" in OPTIONS.info_dict:
     WritePolicyConfig(OPTIONS.info_dict["selinux_fc"], output_zip)
 
@@ -628,7 +628,6 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
 
   system_items = ItemSet("system", "META/filesystem_config.txt")
   script.ShowProgress(system_progress, 0)
-
   if block_based:
     # Full OTA is done as an "incremental" against an empty source
     # image.  This has the effect of writing new data from the package
@@ -655,8 +654,8 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
       common.ZipWriteStr(output_zip, "recovery/" + fn, data)
       system_items.Get("system/" + fn, dir=False)
 
-    common.MakeRecoveryPatch(OPTIONS.input_tmp, output_sink,
-                             recovery_img, boot_img)
+#    common.MakeRecoveryPatch(OPTIONS.input_tmp, output_sink,
+#                             recovery_img, boot_img)
 
     system_items.GetMetadata(input_zip)
     system_items.Get("system").SetPermissions(script)
@@ -693,15 +692,6 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
     script.RunBackup("restore")
     if block_based:
       script.Unmount("/system")
-
-  if block_based:
-    script.Print("Flashing SuperSU...")
-    common.ZipWriteStr(output_zip, "supersu/supersu.zip",
-                   ""+input_zip.read("SYSTEM/addon.d/UPDATE-SuperSU.zip"))
-    script.Mount("/system")
-    script.FlashSuperSU()
-  if block_based:
-    script.Unmount("/system")
 
   script.ShowProgress(0.05, 5)
   script.WriteRawImage("/boot", "boot.img")
@@ -810,7 +800,9 @@ def WriteBlockIncrementalOTAPackage(target_zip, source_zip, output_zip):
       source_zip=source_zip,
       source_version=source_version,
       target_zip=target_zip,
+      input_zip=target_zip,
       target_version=target_version,
+      input_version=target_version,
       output_zip=output_zip,
       script=script,
       metadata=metadata,
@@ -943,11 +935,6 @@ set_stage("%(bcb_dev)s", "2/3");
 reboot_now("%(bcb_dev)s", "");
 else
 """ % bcb_dev)
-
-  # Verify the existing partitions.
-  system_diff.WriteVerifyScript(script)
-  if vendor_diff:
-    vendor_diff.WriteVerifyScript(script)
 
   script.Comment("---- start making changes here ----")
 
@@ -1084,7 +1071,7 @@ class FileDifference:
     so_far = 0
     for tf, sf, size, patch_sha in self.patch_list:
       if tf.name != sf.name:
-        script.SkipNextActionIfTargetExists(tf.name, tf.sha1)
+        script.SkipNextActionIfTargetExists("/"+tf.name, tf.sha1)
       script.PatchCheck("/"+sf.name, tf.sha1, sf.sha1)
       so_far += sf.size
     return so_far
@@ -1114,7 +1101,7 @@ class FileDifference:
         deferred_patch_list.append(item)
         continue
       if (sf.name != tf.name):
-        script.SkipNextActionIfTargetExists(tf.name, tf.sha1)
+        script.SkipNextActionIfTargetExists("/"+tf.name, tf.sha1)
       script.ApplyPatch("/"+sf.name, "-", tf.size, tf.sha1, sf.sha1, "patch/"+sf.name+".p")
       so_far += tf.size
       script.SetProgress(so_far / total_patch_size)
@@ -1178,7 +1165,9 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
       source_zip=source_zip,
       source_version=source_version,
       target_zip=target_zip,
+      input_zip=target_zip,
       target_version=target_version,
+      input_version=target_version,
       output_zip=output_zip,
       script=script,
       metadata=metadata,

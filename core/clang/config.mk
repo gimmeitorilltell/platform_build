@@ -30,10 +30,10 @@ ifdef CXX_WRAPPER
 endif
 
 # Clang flags for all host or target rules
-CLANG_CONFIG_EXTRA_ASFLAGS :=
-CLANG_CONFIG_EXTRA_CFLAGS :=
-CLANG_CONFIG_EXTRA_CPPFLAGS :=
-CLANG_CONFIG_EXTRA_LDFLAGS :=
+CLANG_CONFIG_EXTRA_ASFLAGS := $(CANDY_CLANG_CONFIG_EXTRA_ASFLAGS)
+CLANG_CONFIG_EXTRA_CFLAGS := $(CANDY_CLANG_CONFIG_EXTRA_CFLAGS)
+CLANG_CONFIG_EXTRA_CPPFLAGS := $(CANDY_CLANG_CONFIG_EXTRA_CPPFLAGS)
+CLANG_CONFIG_EXTRA_LDFLAGS := $(CANDY_CLANG_CONFIG_EXTRA_LDFLAGS)
 
 CLANG_CONFIG_EXTRA_CFLAGS += \
   -D__compiler_offsetof=__builtin_offsetof
@@ -57,7 +57,9 @@ CLANG_CONFIG_UNKNOWN_CFLAGS := \
   -Wmaybe-uninitialized \
   -Wno-maybe-uninitialized \
   -Wno-error=maybe-uninitialized \
-  -fno-canonical-system-headers
+  -fno-canonical-system-headers \
+  -Wstrict-aliasing=3
+
 
 # Clang flags for all host rules
 CLANG_CONFIG_HOST_EXTRA_ASFLAGS :=
