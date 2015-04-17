@@ -1708,10 +1708,9 @@ ifneq ($(PRODUCT_PREBUILT_WEBVIEWCHROMIUM),yes)
 endif
 endif
 
-	$(hide) find $(PRODUCT_OUT) -maxdepth 1 -xdev -samefile $(INTERNAL_OTA_PACKAGE_TARGET) | grep -v ota-eng | xargs rm -f
-	$(hide) rm -f $(PRODUCT_OUT)/*.md5sum
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(PAC_TARGET_PACKAGE)
-	$(hide) (cd `dirname $(PAC_TARGET_PACKAGE)` && $(MD5SUM) `basename $(PAC_TARGET_PACKAGE)` > $(PAC_TARGET_PACKAGE).md5sum)
+	$(hide) $(MD5SUM) $(PAC_TARGET_PACKAGE) > $(PAC_TARGET_PACKAGE).md5sum
+	@echo -e ${CL_CYN}""${CL_CYN}
 	@echo -e ""
 	@echo -e ${CL_BLD}${CL_GRN}"===============================-Package complete-==============================="${CL_RST}
 	@echo -e ${CL_BLD}${CL_RED}"Zip: "${CL_YLW} $(PAC_TARGET_PACKAGE)${CL_RST}
