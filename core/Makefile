@@ -1734,13 +1734,6 @@ PAC_TARGET_PACKAGE := $(PRODUCT_OUT)/$(PAC_BUILD_VERSION).zip
 otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
 bacon: otapackage
 
-ifeq ($(USE_PREBUILT_CHROMIUM),1)
-ifneq ($(PRODUCT_PREBUILT_WEBVIEWCHROMIUM),yes)
-	@echo "Running Chromium prebuilt setup script..."
-	$(hide) . $(TOPDIR)vendor/pac/tools/chromium_prebuilt.sh $(TOP)
-endif
-endif
-
 	$(hide) ln -f $(INTERNAL_OTA_PACKAGE_TARGET) $(PAC_TARGET_PACKAGE)
 	$(hide) $(MD5SUM) $(PAC_TARGET_PACKAGE) > $(PAC_TARGET_PACKAGE).md5sum
 	@echo -e ${CL_CYN}""${CL_CYN}

@@ -662,13 +662,6 @@ function lunch()
 
     echo
 
-    if [[ $USE_PREBUILT_CHROMIUM -eq 1 ]]; then
-        chromium_prebuilt
-    else
-        # Unset flag in case user opts out later on
-        export PRODUCT_PREBUILT_WEBVIEWCHROMIUM=""
-    fi
-
     fixup_common_out_dir
 
     set_stuff_for_environment
@@ -2978,23 +2971,6 @@ function mk_timer()
 function make()
 {
     mk_timer $(get_make_command) "$@"
-}
-
-function chromium_prebuilt() {
-    T=$(gettop)
-    export TARGET_DEVICE=$(get_build_var TARGET_DEVICE)
-    hash=$T/prebuilts/chromium/$TARGET_DEVICE/hash.txt
-    if [ -r $hash ] && [ $(git --git-dir=$T/external/chromium_org/.git --work-tree=$T/external/chromium_org rev-parse --verify HEAD) == $(cat $hash) ] && [ -f $libsCheck ] && [ -d $appCheck ]; then
-        export PRODUCT_PREBUILT_WEBVIEWCHROMIUM=yes
-        echo -e "${bldcya}Prebuilt Chromium is up-to-date: ${bldgrn}Will be used for build${rst}"
-    else
-        export PRODUCT_PREBUILT_WEBVIEWCHROMIUM=no
-        if [ -f $hash ]; then
-            echo -e "${bldcya}Prebuilt Chromium out-of-date: ${bldylw}Will build from source${rst}"
-        else
-            echo -e "${bldcya}Prebuilt Chromium not found: ${bldred}Will build from source${rst}"
-        fi
-    fi
 }
 
 if [ "x$SHELL" != "x/bin/bash" ]; then
