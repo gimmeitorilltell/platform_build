@@ -1767,7 +1767,6 @@ $(INTERNAL_FACTORY_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
 factorypackage: $(INTERNAL_FACTORY_PACKAGE_TARGET)
 
 endif    # recovery_fstab is defined
-endif    # TARGET_NO_KERNEL != true
 endif    # TARGET_DEVICE != generic*
 endif    # TARGET_PRODUCT != sdk
 
