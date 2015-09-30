@@ -182,6 +182,7 @@ endif
 #
 # For Java 1.7, we require OpenJDK on linux and Oracle JDK on Mac OS.
 requires_openjdk := false
+ifneq ($(BUILDING_ON_CODEFIRE),true)
 ifeq ($(HOST_OS), linux)
 ifeq ($(shell echo '$(java_version_str)' | grep '1.8'),)
 requires_openjdk := true
