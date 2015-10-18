@@ -1796,7 +1796,7 @@ ifneq ($(TARGET_IGNORE_ERRORS),true)
 ifeq ($(HOST_OS),darwin)
 	@echo -e ${CL_BLD}${CL_RED}"Size:"${CL_YLW}" `ls -lah $(PAC_TARGET_PACKAGE) | cut -d ' ' -f 9`"${CL_RST}
 else
-	@echo -e ${CL_BLD}${CL_RED}"Size:"${CL_YLW}" `ls -lah $(PAC_TARGET_PACKAGE) | cut -d ' ' -f 5`"${CL_RST}
+	@echo -e ${CL_RED}"Size:"${CL_YLW}" `ls -lah $(PAC_TARGET_PACKAGE) | cut -d ' ' -f 5`"${CL_RST}
 endif
 	@echo -e ${CL_BLD}${CL_RED}"OTA Link: "${CL_YLW}"http://pac-rom.com/ota/?device=$(TARGET_DEVICE)&version=$(PAC_BUILD_VERSION)&md5=`cat $(PAC_TARGET_PACKAGE).md5sum | cut -d ' ' -f 1`"${CL_RST}
 	@echo -e ${CL_BLD}${CL_GRN}"================================================================================"${CL_RST}
