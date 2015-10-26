@@ -715,8 +715,8 @@ function tapas()
 function eat()
 {
     if [ "$OUT" ] ; then
-        MODVERSION=$(get_build_var PAC_VERSION)
-        ZIPFILE=pac-$MODVERSION.zip
+        MODVERSION=$(get_build_var PAC_BUILD_VERSION)
+        ZIPFILE=$MODVERSION.zip
         ZIPPATH=$OUT/$ZIPFILE
         if [ ! -f $ZIPPATH ] ; then
             echo "Nothing to eat"
