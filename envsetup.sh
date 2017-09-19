@@ -526,41 +526,114 @@ function add_lunch_combo()
 }
 
 # add the default one here
-add_lunch_combo aosp_arm-eng
-add_lunch_combo aosp_arm64-eng
-add_lunch_combo aosp_mips-eng
-add_lunch_combo aosp_mips64-eng
-add_lunch_combo aosp_x86-eng
-add_lunch_combo aosp_x86_64-eng
+add_lunch_combo candy_arm-eng
+add_lunch_combo candy_arm64-eng
+add_lunch_combo candy_mips-eng
+add_lunch_combo candy_mips64-eng
+add_lunch_combo candy_x86-eng
+add_lunch_combo candy_x86_64-eng
 
 function print_lunch_menu()
 {
     local uname=$(uname)
     echo
-    echo "You're building on" $uname
-    echo
-    echo "Lunch menu... pick a combo:"
+
+    echo ""
+    tput setaf 1;
+    tput bold;
+    echo " ██████╗  █████╗  ███╗   ██╗ ██████╗  ██╗   ██╗"
+    echo "██╔════╝ ██╔══██╗ ████╗  ██║ ██╔══██╗ ╚██╗ ██╔╝"
+    echo "██║      ███████║ ██╔██╗ ██║ ██║  ██║  ╚═██╔═╝ "
+    echo "██║      ██╔══██║ ██║╚██╗██║ ██║  ██║    ██║   "
+    echo "╚██████╗ ██║  ██║ ██║ ╚████║ ██████╔╝    ██║   "
+    echo " ╚═════╝ ╚═╝  ╚═╝ ╚═╝  ╚═══╝ ╚═════╝     ╚═╝   "
+    tput sgr0;
+    echo ""
+    echo "                      Welcome to the device menu                      "
+    echo ""
+    tput bold;
+    echo "     Below are all the devices currently available to be compiled     "
+    tput sgr0;
+    echo ""
 
     local i=1
     local choice
     for choice in ${LUNCH_MENU_CHOICES[@]}
     do
-        echo "     $i. $choice"
+        echo " $i. $choice "
         i=$(($i+1))
-    done
+    done | column
+
+    if [ "z${CANDY_DEVICES_ONLY}" != "z" ]; then
+       echo "... and don't forget the candy!"
+    fi
 
     echo
 }
 
+function brunch()
+{
+    breakfast $*
+    if [ $? -eq 0 ]; then
+        mka candy
+    else
+        echo "No such item in brunch menu. Try 'breakfast'"
+        return 1
+    fi
+    return $?
+}
+
+function omnom
+{
+    brunch $*
+    eat
+}
+
+function breakfast()
+{
+    target=$1
+    local variant=$2
+    CANDY_DEVICES_ONLY="true"
+    unset LUNCH_MENU_CHOICES
+    add_lunch_combo full-eng
+    for f in `/bin/ls vendor/candy/vendorsetup.sh 2> /dev/null`
+        do
+            echo "including $f"
+            . $f
+        done
+    unset f
+
+    if [ $# -eq 0 ]; then
+        # No arguments, so let's have the full menu
+        lunch
+    else
+        echo "z$target" | grep -q "-"
+        if [ $? -eq 0 ]; then
+            # A buildtype was specified, assume a full device name
+            lunch $target
+        else
+            # This is probably just the CANDY model name
+            if [ -z "$variant" ]; then
+                variant="userdebug"
+            fi
+            lunch candy_$target-$variant
+        fi
+    fi
+    return $?
+}
+
+alias bib=breakfast
+
 function lunch()
 {
     local answer
+    LUNCH_MENU_CHOICES=($(for l in ${LUNCH_MENU_CHOICES[@]}; do echo "$l"; done | sort))
 
     if [ "$1" ] ; then
         answer=$1
     else
         print_lunch_menu
-        echo -n "Which would you like? [aosp_arm-eng] "
+        echo -n "Which would you like? [candy_arm-eng] "
         read answer
     fi
 
@@ -575,49 +648,67 @@ function lunch()
         then
             selection=${LUNCH_MENU_CHOICES[$(($answer-1))]}
         fi
-    else
+    elif (echo -n $answer | grep -q -e "^[^\-][^\-]*-[^\-][^\-]*$")
+    then
         selection=$answer
+    fi
+
+    if [ -z "$selection" ]
+    then
+        echo
+        echo "Invalid lunch combo: $answer"
+        return 1
     fi
 
     export TARGET_BUILD_APPS=
 
-    local product variant_and_version variant version
-
-    product=${selection%%-*} # Trim everything after first dash
-    variant_and_version=${selection#*-} # Trim everything up to first dash
-    if [ "$variant_and_version" != "$selection" ]; then
-        variant=${variant_and_version%%-*}
-        if [ "$variant" != "$variant_and_version" ]; then
-            version=${variant_and_version#*-}
-        fi
-    fi
-
-    if [ -z "$product" ]
-    then
-        echo
-        echo "Invalid lunch combo: $selection"
-        return 1
-    fi
-
-    TARGET_PRODUCT=$product \
-    TARGET_BUILD_VARIANT=$variant \
-    TARGET_PLATFORM_VERSION=$version \
-    build_build_var_cache
+    local product=$(echo -n $selection | sed -e "s/-.*$//")
+    check_product $product
     if [ $? -ne 0 ]
     then
+        # if we can't find a product, try to grab it off the CANDY github
+        T=$(gettop)
+        pushd $T > /dev/null
+        vendor/candy/build/tools/roomservice.py $product
+        popd > /dev/null
+        check_product $product
+    else
+        vendor/candy/build/tools/roomservice.py $product true
+    fi
+    if [ $? -ne 0 ]
+    then
+        echo
+        echo "** Don't have a product spec for: '$product'"
+        echo "** Do you have the right repo manifest?"
+        product=
+    fi
+
+    local variant=$(echo -n $selection | sed -e "s/^[^\-]*-//")
+    check_variant $variant
+    if [ $? -ne 0 ]
+    then
+        echo
+        echo "** Invalid variant: '$variant'"
+        echo "** Must be one of ${VARIANT_CHOICES[@]}"
+        variant=
+    fi
+
+    if [ -z "$product" -o -z "$variant" ]
+    then
+        echo
         return 1
     fi
 
-    export TARGET_PRODUCT=$(get_build_var TARGET_PRODUCT)
-    export TARGET_BUILD_VARIANT=$(get_build_var TARGET_BUILD_VARIANT)
-    export TARGET_PLATFORM_VERSION=$(get_build_var TARGET_PLATFORM_VERSION)
+    export TARGET_PRODUCT=$product
+    export TARGET_BUILD_VARIANT=$variant
     export TARGET_BUILD_TYPE=release
 
     echo
 
+    fixup_common_out_dir
+
     set_stuff_for_environment
     printconfig
-    destroy_build_var_cache
 }
 
 # Tab completion for lunch.
@@ -655,10 +746,10 @@ function tapas()
         return
     fi
 
-    local product=aosp_arm
+    local product=full
     case $arch in
-      x86)    product=aosp_x86;;
-      mips)   product=aosp_mips;;
+      x86)    product=full_x86;;
+      mips)   product=full_mips;;
       armv5)  product=generic_armv5;;
       arm64)  product=aosp_arm64;;
       x86_64) product=aosp_x86_64;;
@@ -684,6 +775,51 @@ function tapas()
     set_stuff_for_environment
     printconfig
     destroy_build_var_cache
+}
+
+function eat()
+{
+    if [ "$OUT" ] ; then
+        MODVERSION=$(get_build_var CANDY_VERSION)
+        ZIPFILE=$MODVERSION.zip
+        ZIPPATH=$OUT/$ZIPFILE
+        if [ ! -f $ZIPPATH ] ; then
+            echo "Nothing to eat"
+            return 1
+        fi
+        adb start-server # Prevent unexpected starting server message from adb get-state in the next line
+        if [ $(adb get-state) != device -a $(adb shell busybox test -e /sbin/recovery 2> /dev/null; echo $?) != 0 ] ; then
+            echo "No device is online. Waiting for one..."
+            echo "Please connect USB and/or enable USB debugging"
+            until [ $(adb get-state) = device -o $(adb shell busybox test -e /sbin/recovery 2> /dev/null; echo $?) = 0 ];do
+                sleep 1
+            done
+            echo "Device Found.."
+        fi
+    if (adb shell getprop ro.candy.device | grep -q "$CANDY_BUILD");
+    then
+        # if adbd isn't root we can't write to /cache/recovery/
+        adb root
+        sleep 1
+        adb wait-for-device
+        cat << EOF > /tmp/command
+--sideload
+EOF
+        if adb push /tmp/command /cache/recovery/ ; then
+            echo "Rebooting into recovery for sideload installation"
+            adb reboot recovery
+            adb wait-for-sideload
+            adb sideload $ZIPPATH
+        fi
+        rm /tmp/command
+    else
+        echo "Nothing to eat"
+        return 1
+    fi
+    return $?
+    else
+        echo "The connected device does not appear to be $CANDY_BUILD, run away!"
+    fi
 }
 
 function gettop
@@ -1671,4 +1807,17 @@ do
 done
 unset f
 
-addcompletions
+# Add completions
+check_bash_version && {
+    dirs="sdk/bash_completion vendor/candy/bash_completion"
+    for dir in $dirs; do
+    if [ -d ${dir} ]; then
+        for f in `/bin/ls ${dir}/[a-z]*.bash 2> /dev/null`; do
+            echo "including $f"
+            . $f
+        done
+    fi
+    done
+}
+
+export ANDROID_BUILD_TOP=$(gettop)
